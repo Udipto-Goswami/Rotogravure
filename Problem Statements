@@ -1,0 +1,14 @@
+Objectives:
+
+Find the top 10 most recent cylinders 
+Find the top 3 most used solvents
+Find the customers who uses top most used solvents 
+Find the top 3 paper_mill location who ordered cylinders recently 
+Find the top 3 most used paper types
+Find the records of the cylinder with max chrome content
+Find the count number of band type as : band and no band 
+Find the max wax numeric
+Find the count ink types 
+Find the cylinders with max viscosity 
+
+Results are found in Problem_result folder
