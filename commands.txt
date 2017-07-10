@@ -1,3 +1,5 @@
+LOAD DATA LOCAL inpath '/Rotogravure/cylinder_brands.data' OVERWRITE INTO TABLE cylinder_brands;
+////////////////////////////////////////////////////////////////////////////
 HIVE: command  to import the database
 ////////////////////////////////////////////////////////////////////////////
 create external table cylinder_brands ( time_stamp int,cylinder_number string,customer string,job_number int,grain_screened string,int_color string,proof_on_ctd_ink string,blade_mfg string,cylinder_division string,paper_type string,ink_type string,direct_steam string,solvent_type string,type_on_cylinder string,press_type string,press int,unit_number int,cylinder_size string,paper_mill_location string,plating_tank int,proof_cut int,viscosity int,caliper double,ink_temperature double,humifity double,roughness double,blade_pressure int ,varnish_pct double,press_speed int,ink_pct double,solvent_pct double,esa_voltage int    ,esa_amperage int    ,wax double,hardener double,roller_durometer int,current_density int,anode_space_ratio double,chrome_content int,band_type string) row format delimited fields terminated by ','location '/user/hive/warehouse/rotogravure.db';
