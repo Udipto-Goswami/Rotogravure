@@ -1,0 +1,131 @@
+HIVE: command  to import the database
+////////////////////////////////////////////////////////////////////////////
+create external table cylinder_brands ( time_stamp int,cylinder_number string,customer string,job_number int,grain_screened string,int_color string,proof_on_ctd_ink string,blade_mfg string,cylinder_division string,paper_type string,ink_type string,direct_steam string,solvent_type string,type_on_cylinder string,press_type string,press int,unit_number int,cylinder_size string,paper_mill_location string,plating_tank int,proof_cut int,viscosity int,caliper double,ink_temperature double,humifity double,roughness double,blade_pressure int ,varnish_pct double,press_speed int,ink_pct double,solvent_pct double,esa_voltage int    ,esa_amperage int    ,wax double,hardener double,roller_durometer int,current_density int,anode_space_ratio double,chrome_content int,band_type string) row format delimited fields terminated by ','location '/user/hive/warehouse/rotogravure.db';
+
+////////////////////////////////////////////////////////////////////////////
+PIG: commands for data analysis
+////////////////////////////////////////////////////////////////////////////
+
+
+cylinder_data = LOAD '/user/hive/warehouse/rotogravure.db' USING PigStorage(',') AS ( time_stamp:int,cylinder_number:chararray,customer:chararray,job_number:int,grain_screened: chararray,int_color:chararray,proof_on_ctd_ink:chararray,blade_mfg: chararray,cylinder_division:chararray,paper_type:chararray,ink_type: chararray,direct_steam :chararray,solvent_type: chararray,type_on_cylinder: chararray,press_type :chararray,press:int,unit_number: int,cylinder_size: chararray,paper_mill_location :chararray,plating_tank: int,proof_cut :int,viscosity: int,caliper:double,ink_temperature: double,humifity: double,roughness: double,blade_pressure :int ,varnish_pct: double,press_speed: int,ink_pct: double,solvent_pct: double,esa_voltage: int,esa_amperage: int,wax:double,hardener: double,roller_durometer: int,current_density: int,anode_space_ratio: double,chrome_content: int,band_type:chararray); 
+
+
+/////////////////////////////////////////////////
+PROBLEM 1:TOP 10 Most Recent Cyliinders
+/////////////////////////////////////////////////
+
+
+order_by_time_stamp = order cylinder_data by time_stamp DESC;
+
+limiting_result= LIMIT order_by 10;
+
+STORE limiting_result INTO '/user/hive/result1';
+
+
+////////////////////////////////////////////////
+PROBLEM 2:Top 3 Most used Solvent Types
+////////////////////////////////////////////////
+
+
+group_by_solvent = GROUP cylinder_data by solvent_type;
+
+counting_solvents = FOREACH group_by_solvent GENERATE group, COUNT(cylinder_data.solvent_type);
+
+order_by_solvents = ORDER counting_solvents by $1 DESC; 
+
+limiting_result = LIMIT order_by_solvents 3;
+
+STORE limiting_result INTO '/user/hive/result1';
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 3:
+/////////////////////////////////////////////////////////////////////////
+solvents_used = LOAD '/user/hive/Problem_result_2' USING PigStorage('\t') AS(solvent:chararray, cnt:int);
+
+filtering_cylinder = JOIN cylinder_data by solvent_type, solvents_used by solvent;
+
+ filtering_customer = FOREACH filtering_cylinder GENERATE $2,$12;
+
+ distincting_result = DISTINCT filtering_customer;
+
+
+
+
+///////////////////////////////////////////////////////////////////////////
+PROBLEM 4:
+///////////////////////////////////////////////////////////////////////////
+
+
+order_by_time_stamp = order cylinder_data by time_stamp DESC;
+
+filtering_data = FILTER order_by_time_stamp by paper_mill_location!='';
+
+limiting_result = LIMIT filtering_data 3;  
+
+display_paper_mills = FOREACH limiting_result GENERATE $18; 
+
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 5:
+/////////////////////////////////////////////////////////////////////////
+
+group_by_paper = GROUP cylinder_data by paper_type;
+
+counting_paper = FOREACH group_by_paper GENERATE group, COUNT(cylinder_data.paper_type);
+
+order_by_paper = ORDER counting_paper by $1 DESC; 
+
+limiting_result = LIMIT order_by_paper 3;
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 6:
+/////////////////////////////////////////////////////////////////////////
+
+ group_chrome_all = GROUP cylinder_data ALL;
+
+max_chrome = FOREACH group_chrome_all GENERATE cylinder_data.cylinder_number,cylinder_data.customer, MAX(cylinder_data.chrome_content);
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 7:
+/////////////////////////////////////////////////////////////////////////
+
+
+ group_byBand_type = GROUP cylinder_data by band_type;
+
+counting_band = FOREACH group_byBand_type GENERATE group,COUNT(cylinder_data.band_type);
+
+
+////////////////////////////////////////////////////////////////////////
+PROBLEM 8:
+////////////////////////////////////////////////////////////////////////
+
+
+group_by_all = GROUP cylinder_data ALL;
+
+max_wax  = FOREACH group_by_all GENERATE cylinder_data.cylinder_number, MAX(cylinder_data.wax);
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 9:
+/////////////////////////////////////////////////////////////////////////
+
+
+ group_by_ink = GROUP cylinder_data by ink_type;
+
+ counting_ink = FOREACH group_by_ink GENERATE group, COUNT(cylinder_data.ink_type);
+
+
+/////////////////////////////////////////////////////////////////////////
+PROBLEM 10:
+/////////////////////////////////////////////////////////////////////////
+
+
+group_by_all = GROUP cylinder_data ALL;
+
+max_viscous  = FOREACH group_by_all GENERATE cylinder_data.cylinder_number,MAX(cylinder_data.viscosity);
+
+/////////////////////////////////////////////////////////////////////////
