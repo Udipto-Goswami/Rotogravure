@@ -1,4 +1,4 @@
-# Rotogravure:cylinder bands data analysis. A POC using HADOOP Ecosystem
+# Rotogravure:cylinder data analysis. A POC using HADOOP Ecosystem
 Problem analysis of database of cylinders used for printing  labels of products. This whole project is a proof of concept.
 
 Technologies used:
